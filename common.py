@@ -1,7 +1,7 @@
 import os
 from collections import defaultdict
 from multiprocessing.pool import ThreadPool
-from typing import Any
+from typing import Any, Callable
 
 import jinja2
 import numpy as np
@@ -124,7 +124,7 @@ def _compute_stat(values: list, stat: str):
 
 def aggregate_results(
     single_eval_results: list[SingleEvalResult],
-    default_stats: tuple[str] = ("mean", "std"),
+    default_stats: tuple[str, ...] = ("mean", "std"),
     name2stats: dict[str, tuple[str]] | None = None,
 ) -> EvalResult:
     """
@@ -148,11 +148,14 @@ def aggregate_results(
             key = name if stat == "mean" else f"{name}:{stat}"
             final_metrics[key] = _compute_stat(values, stat)
     return EvalResult(
-        score=final_metrics.pop("score", None), metrics=final_metrics, htmls=htmls, convos=convos
+        score=final_metrics.pop("score", None),
+        metrics=final_metrics,
+        htmls=htmls,
+        convos=convos,
     )
 
 
-def map_with_progress(f: callable, xs: list[Any], num_threads: int = 50):
+def map_with_progress(f: Callable, xs: list[Any], num_threads: int = 50):
     """
     Apply f to each element of xs, using a ThreadPool, and show progress.
     """
@@ -171,7 +174,7 @@ jinja_env = jinja2.Environment(
 _message_template = """
 <div class="message {{ role }}">
     <div class="role">
-    {{ role }} 
+    {{ role }}
     {% if variant %}<span class="variant">({{ variant }})</span>{% endif %}
     </div>
     <div class="content">
@@ -186,7 +189,9 @@ def message_to_html(message: Message) -> str:
     Generate HTML snippet (inside a <div>) for a message.
     """
     return jinja_env.from_string(_message_template).render(
-        role=message["role"], content=message["content"], variant=message.get("variant", None)
+        role=message["role"],
+        content=message["content"],
+        variant=message.get("variant", None),
     )
 
 
@@ -274,4 +279,6 @@ def make_report_from_example_htmls(htmls: list[str]):
     """
     Create a standalone HTML report from a list of example htmls
     """
-    return jinja_env.from_string(_report_template).render(score=None, metrics={}, htmls=htmls)
+    return jinja_env.from_string(_report_template).render(
+        score=None, metrics={}, htmls=htmls
+    )

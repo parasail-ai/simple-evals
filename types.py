@@ -14,6 +14,9 @@ class SamplerBase:
     def __call__(self, message_list: MessageList) -> str:
         raise NotImplementedError
 
+    def pack_message(self, role: str, content: Any):
+        raise NotImplementedError
+
 
 @dataclass
 class EvalResult:

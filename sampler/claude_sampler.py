@@ -43,7 +43,11 @@ class ClaudeCompletionSampler(SamplerBase):
         self.image_format = "base64"
 
     def _handle_image(
-        self, image: str, encoding: str = "base64", format: str = "png", fovea: int = 768
+        self,
+        image: str,
+        encoding: str = "base64",
+        format: str = "png",
+        fovea: int = 768,
     ):
         new_image = {
             "type": "image",
@@ -58,7 +62,7 @@ class ClaudeCompletionSampler(SamplerBase):
     def _handle_text(self, text):
         return {"type": "text", "text": text}
 
-    def _pack_message(self, role, content):
+    def pack_message(self, role, content):
         return {"role": str(role), "content": content}
 
     def __call__(self, message_list: MessageList) -> str:
