@@ -257,24 +257,25 @@ class DropEval(Eval):
         )
         with requests.get(self.train_jsonl) as resp:
             self.train_samples = list(map(json.loads, get_lines(resp)))
+        rng = random.Random(self.seed)
         with requests.get(self.test_jsonl) as resp:
             self.test_samples = list(map(json.loads, get_lines(resp)))
             if self._num_examples:
-                self.test_samples = random.Random(self.seed).sample(
-                    self.test_samples, self._num_examples
-                )
+                samples = rng.sample(self.test_samples, self._num_examples)
+                self.test_samples = [
+                    (
+                        rng.sample(self.train_samples, self._train_samples_per_prompt) + [sample]
+                    )
+                    for sample in samples
+                ]
 
     def __call__(self, sampler: SamplerBase) -> EvalResult:
-        rng = random.Random(self.seed)
-
-        def fn(example: dict[str, str]):
-            stuffing = rng.sample(self.train_samples, self._train_samples_per_prompt)
-
+        def fn(samples: list[dict[str, str]]):
             prompt = """You will be asked to read a passage and answer a question. Some examples of passages and Q&A are provided below."""
             prompt += "\n\n# Examples"
-            samples = stuffing + [example]
             for i, sample in enumerate(samples):
-                is_test = i == len(stuffing)
+                # Test sample is always the last one.
+                is_test = i == (len(samples) - 1)
                 prompt += "\n# Your Task\n" if is_test else ""
                 prompt += f"""
 ---
