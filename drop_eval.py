@@ -134,7 +134,7 @@ def _compute_f1(predicted_bag: Set[str], gold_bag: Set[str]) -> float:
         (2 * precision * recall) / (precision + recall)
         if not (precision == 0.0 and recall == 0.0)
         else 0.0
-    ) * 100
+    )
     return f1
 
 
