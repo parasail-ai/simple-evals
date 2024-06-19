@@ -1,9 +1,7 @@
 import atexit
-import base64
 import dataclasses
 import pathlib
 import threading
-import time
 import uuid
 from typing import Any, Optional
 

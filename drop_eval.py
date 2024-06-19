@@ -9,8 +9,7 @@ import json
 import random
 import re
 import string
-from io import StringIO
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Set, Tuple, Union
 
 import numpy as np
 import requests
@@ -252,9 +251,9 @@ class DropEval(Eval):
         self.train_jsonl = "https://openaipublic.blob.core.windows.net/simple-evals/drop_v0_train.jsonl.gz"
         self.test_jsonl = "https://openaipublic.blob.core.windows.net/simple-evals/drop_v0_dev.jsonl.gz"
 
-        get_lines = (
-            lambda resp: gzip.decompress(resp.content).decode("utf-8").splitlines()
-        )
+        def get_lines(resp):
+            return gzip.decompress(resp.content).decode("utf-8").splitlines()
+
         with requests.get(self.train_jsonl) as resp:
             self.train_samples = list(map(json.loads, get_lines(resp)))
         rng = random.Random(self.seed)
@@ -264,7 +263,8 @@ class DropEval(Eval):
                 samples = rng.sample(self.test_samples, self._num_examples)
                 self.test_samples = [
                     (
-                        rng.sample(self.train_samples, self._train_samples_per_prompt) + [sample]
+                        rng.sample(self.train_samples, self._train_samples_per_prompt)
+                        + [sample]
                     )
                     for sample in samples
                 ]

@@ -1,6 +1,5 @@
 import json
 import os
-import time
 
 import pandas as pd
 from absl import app, flags
@@ -11,7 +10,6 @@ from .gpqa_eval import GPQAEval
 from .mgsm_eval import MGSMEval
 from .mmlu_eval import MMLUEval
 from .sampler.batch_chat_completion_sampler import BatchChatCompletionSampler
-from .types import Eval
 
 FLAGS = flags.FLAGS
 
