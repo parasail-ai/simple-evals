@@ -13,8 +13,8 @@ from .sampler.batch_chat_completion_sampler import BatchChatCompletionSampler
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_string(
-    "model", "meta-llama/Meta-Llama-3-8B-Instruct", "Model name to evaluate."
+flags.DEFINE_list(
+    "models", "meta-llama/Meta-Llama-3-8B-Instruct", "List of model names to evaluate."
 )
 
 flags.DEFINE_boolean(
@@ -31,9 +31,6 @@ flags.DEFINE_string("working_dir", "/tmp", "Working dir for eval results.")
 
 
 def main(argv: list[str]):
-    working_dir = f"{FLAGS.working_dir}/{FLAGS.model}"
-    os.makedirs(working_dir, exist_ok=True)
-
     evals = {
         "mmlu": MMLUEval(num_examples=2500),
         "gpqa": GPQAEval(n_repeats=10),
@@ -41,37 +38,44 @@ def main(argv: list[str]):
         "drop": DropEval(num_examples=2000, train_samples_per_prompt=3),
     }
 
-    sampler = BatchChatCompletionSampler(
-        model=FLAGS.model,
-        working_dir=working_dir,
-        temperature=FLAGS.temperature,
-        max_tokens=FLAGS.max_tokens,
-        instrument=FLAGS.instrument,
-    )
-    results = {name: eval(sampler) for name, eval in evals.items()}
+    mergekey2resultpath = {}
+    for model in FLAGS.models:
+        working_dir = f"{FLAGS.working_dir}/{model}"
+        os.makedirs(working_dir, exist_ok=True)
+
+        sampler = BatchChatCompletionSampler(
+            model=model,
+            working_dir=working_dir,
+            temperature=FLAGS.temperature,
+            max_tokens=FLAGS.max_tokens,
+            instrument=FLAGS.instrument,
+        )
+        results = {name: eval(sampler) for name, eval in evals.items()}
+        if FLAGS.instrument:
+            print(f"Requests written to {working_dir}/requests.jsonl")
+            continue
+
+        for eval_name, result in results.items():
+            eval_model_name = f"{eval_name}/{model}"
+            output_dir = f"{working_dir}/{eval_name}/"
+            os.makedirs(output_dir, exist_ok=True)
+
+            report_filename = output_dir + "report.html"
+            print(f"Writing report to {report_filename}")
+            with open(report_filename, "w") as fh:
+                fh.write(common.make_report(result))
+
+            metrics = result.metrics | {"score": result.score}
+            result_filename = output_dir + "result.json"
+            print(f"Writing results to {result_filename}")
+            with open(result_filename, "w") as f:
+                f.write(json.dumps(metrics, indent=2))
+
+            mergekey2resultpath[f"{eval_model_name}"] = result_filename
+
     if FLAGS.instrument:
         print("Instrument run finished")
-        print(f"Requests written to {working_dir}/requests.jsonl")
         return
-
-    mergekey2resultpath = {}
-    for eval_name, result in results.items():
-        eval_model_name = f"{eval_name}/{FLAGS.model}"
-        output_dir = f"{working_dir}/{eval_name}/"
-        os.makedirs(output_dir, exist_ok=True)
-
-        report_filename = output_dir + "report.html"
-        print(f"Writing report to {report_filename}")
-        with open(report_filename, "w") as fh:
-            fh.write(common.make_report(result))
-
-        metrics = result.metrics | {"score": result.score}
-        result_filename = output_dir + "result.json"
-        print(f"Writing results to {result_filename}")
-        with open(result_filename, "w") as f:
-            f.write(json.dumps(metrics, indent=2))
-
-        mergekey2resultpath[f"{eval_model_name}"] = result_filename
 
     merge_metrics = []
     for eval_model_name, result_filename in mergekey2resultpath.items():
