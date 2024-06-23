@@ -9,6 +9,7 @@ from .drop_eval import DropEval
 from .gpqa_eval import GPQAEval
 from .mgsm_eval import MGSMEval
 from .mmlu_eval import MMLUEval
+from .math_eval import MathEval
 from .sampler.batch_chat_completion_sampler import BatchChatCompletionSampler
 
 FLAGS = flags.FLAGS
@@ -36,6 +37,7 @@ def main(argv: list[str]):
         "gpqa": GPQAEval(n_repeats=10),
         "mgsm": MGSMEval(num_examples_per_lang=250),
         "drop": DropEval(num_examples=2000, train_samples_per_prompt=3),
+        "math": MathEval(num_examples=2500),
     }
 
     mergekey2resultpath = {}
