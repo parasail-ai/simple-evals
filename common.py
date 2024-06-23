@@ -103,12 +103,6 @@ def format_multichoice_question(row):
     return QUERY_TEMPLATE_MULTICHOICE.format(**row)
 
 
-def check_equality(sampler: SamplerBase, expr1: str, expr2: str):
-    prompt = EQUALITY_TEMPLATE % {"expression1": expr1, "expression2": expr2}
-    response = sampler([dict(content=prompt, role="user")])
-    return response.lower().strip() == "yes"
-
-
 def _compute_stat(values: list, stat: str):
     if stat == "mean":
         return np.mean(values)
