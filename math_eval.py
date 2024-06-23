@@ -4,6 +4,7 @@ Dan Hendrycks, Collin Burns, Saurav Kadavath, Akul Arora, Steven Basart, Eric Ta
 https://arxiv.org/abs/2103.03874
 """
 
+import ast
 import random
 import re
 import signal
@@ -30,8 +31,18 @@ Remember to put your answer on its own line after "Answer:", and you do not need
 # Modified from https://github.com/EleutherAI/lm-evaluation-harness/lm_eval/tasks/minerva_math/utils.py
 # MIT License Copyright (c) 2020 EleutherAI
 
+WHITESPACE = re.compile(r"\s+")
+
 
 def check_equality(expr1: str, expr2: str) -> bool:
+    try:
+        parsed_expr1 = re.sub(WHITESPACE, "", expr1)
+        parsed_expr2 = re.sub(WHITESPACE, "", expr2)
+        if parsed_expr1 == parsed_expr2:
+            return True
+    except Exception as e:
+        pass
+
     try:
         parsed_expr1 = sympy.parsing.latex.parse_latex(expr1)
         parsed_expr2 = sympy.parsing.latex.parse_latex(expr2)
@@ -48,12 +59,15 @@ SUBSTITUTIONS = [
     ("a ", ""),
     (".$", "$"),
     ("\\$", ""),
+    ("\\%", ""),
     (r"\ ", ""),
     (" ", ""),
     ("mbox", "text"),
     (",\\text{and}", ","),
     ("\\text{and}", ","),
     ("\\text{m}", "\\text{}"),
+    ("√", "\\sqrt"),
+    ("π", "\\pi"),
 ]
 REMOVED_EXPRESSIONS = [
     "square",
@@ -62,7 +76,6 @@ REMOVED_EXPRESSIONS = [
     "dollars",
     "mph",
     "inches",
-    "ft",
     "hours",
     "km",
     "units",
@@ -163,7 +176,7 @@ class MathEval(Eval):
             if extracted_answer:
                 score = float(
                     check_equality(
-                        row["Answer"],
+                        normalize_answer(row["Answer"]),
                         normalize_answer(extracted_answer),
                     )
                 )
