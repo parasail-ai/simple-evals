@@ -7,9 +7,10 @@ from absl import app, flags
 from . import common
 from .drop_eval import DropEval
 from .gpqa_eval import GPQAEval
+from .humaneval_eval import HumanEval
+from .math_eval import MathEval
 from .mgsm_eval import MGSMEval
 from .mmlu_eval import MMLUEval
-from .math_eval import MathEval
 from .sampler.batch_chat_completion_sampler import BatchChatCompletionSampler
 
 FLAGS = flags.FLAGS
@@ -38,6 +39,7 @@ def main(argv: list[str]):
         "mgsm": MGSMEval(num_examples_per_lang=250),
         "drop": DropEval(num_examples=2000, train_samples_per_prompt=3),
         "math": MathEval(num_examples=2500),
+        "humaneval": HumanEval(),
     }
 
     mergekey2resultpath = {}

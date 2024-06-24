@@ -9,3 +9,4 @@ requests
 numpy
 simpy
 antlr4-python3-runtime=4.11
+human_eval
