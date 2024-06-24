@@ -7,9 +7,10 @@ from absl import app, flags
 from . import common
 from .drop_eval import DropEval
 from .gpqa_eval import GPQAEval
+from .humaneval_eval import HumanEval
+from .math_eval import MathEval
 from .mgsm_eval import MGSMEval
 from .mmlu_eval import MMLUEval
-from .math_eval import MathEval
 from .sampler.batch_chat_completion_sampler import BatchChatCompletionSampler
 
 FLAGS = flags.FLAGS
@@ -30,6 +31,10 @@ flags.DEFINE_float("temperature", 0.5, "Sampling temperature.")
 
 flags.DEFINE_string("working_dir", "/tmp", "Working dir for eval results.")
 
+flags.DEFINE_boolean(
+    "enable_humaneval", True, "If set to True, HumanEval will be enabled."
+)
+
 
 def main(argv: list[str]):
     evals = {
@@ -39,6 +44,8 @@ def main(argv: list[str]):
         "drop": DropEval(num_examples=2000, train_samples_per_prompt=3),
         "math": MathEval(num_examples=2500),
     }
+    if FLAGS.enable_humaneval:
+        evals["humaneval"] = HumanEval()
 
     mergekey2resultpath = {}
     for model in FLAGS.models:

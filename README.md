@@ -2,6 +2,8 @@
 
 This repository contains a fork of [openai/simple-evals](https://github.com/openai/simple-evals) library for evaluating language models. The main addition is a `BatchChatCompletionSampler` which allow running evaluation using [OpenAI Batch API](https://platform.openai.com/docs/api-reference/batch) with OpenAI or any OpenAI compatible services, e.g. [vLLM](https://github.com/vllm-project/vllm/blob/main/examples/offline_inference_openai.md).
 
+[gVisor](https://gvisor.dev/docs/user_guide/install/) and Docker is required to run HumanEval.
+
 ## Demo
 
 ```bash
@@ -25,12 +27,14 @@ This repository currently contains the following evals:
 - GPQA: A Graduate-Level Google-Proof Q&A Benchmark, reference: https://arxiv.org/abs/2311.12022, https://github.com/idavidrein/gpqa/, [MIT License](https://github.com/idavidrein/gpqa/blob/main/LICENSE)
 - DROP: A Reading Comprehension Benchmark Requiring Discrete Reasoning Over Paragraphs, reference: https://arxiv.org/abs/1903.00161, https://allenai.org/data/drop, [Apache License 2.0](https://github.com/allenai/allennlp-models/blob/main/LICENSE)
 - MGSM: Multilingual Grade School Math Benchmark (MGSM), Language Models are Multilingual Chain-of-Thought Reasoners, reference: https://arxiv.org/abs/2210.03057, https://github.com/google-research/url-nlp, [Creative Commons Attribution 4.0 International Public License (CC-BY)](https://github.com/google-research/url-nlp/blob/main/LICENSE)
+- HumanEval: Evaluating Large Language Models Trained on Code, reference https://arxiv.org/abs/2107.03374, https://github.com/openai/human-eval, [MIT License](https://github.com/openai/human-eval/blob/master/LICENSE)
 
 ## Benchmark Results
-| model_name                           |   ('metric', 'drop') |   ('metric', 'gpqa') |   ('metric', 'math') |   ('metric', 'mgsm') |   ('metric', 'mmlu') |
-|:-------------------------------------|---------------------:|---------------------:|---------------------:|---------------------:|---------------------:|
-| meta-llama/Meta-Llama-3-70B-Instruct |             0.801795 |             0.420202 |               0.5204 |             0.828727 |               0.7956 |
-| REFERENCE-RERUN                         |               |       |            |            |            |            |                     |
-| Llama3 70b (report[^1])                |    0.814    |    0.413    |    0.528    |    0.826       |        0.802         |
+
+| model_name                           | ('metric', 'drop') | ('metric', 'gpqa') | ('metric', 'math') | ('metric', 'mgsm') | ('metric', 'mmlu') |
+| :----------------------------------- | -----------------: | -----------------: | -----------------: | -----------------: | -----------------: |
+| meta-llama/Meta-Llama-3-70B-Instruct |           0.801795 |           0.420202 |             0.5204 |           0.828727 |             0.7956 |
+| REFERENCE-RERUN                      |                    |                    |                    |                    |                    |
+| Llama3 70b (report[^1])              |              0.814 |              0.413 |              0.528 |              0.826 |              0.802 |
 
 [^1]: https://github.com/openai/simple-evals
