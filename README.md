@@ -4,6 +4,8 @@ This repository contains a fork of [openai/simple-evals](https://github.com/open
 
 [gVisor](https://gvisor.dev/docs/user_guide/install/) and Docker is required to run HumanEval.
 
+Multilingual MMLU and SimpleQA is currently not supported.
+
 ## Demo
 
 ```bash

@@ -8,7 +8,7 @@ import ast
 import random
 import re
 import signal
-from typing import Optional
+from typing import Literal, Optional
 
 import pandas
 import sympy
@@ -156,9 +156,13 @@ def normalize_answer(final_answer: str) -> str:
 
 
 class MathEval(Eval):
-    def __init__(self, num_examples: Optional[int] = None):
+    def __init__(
+        self,
+        num_examples: Optional[int] = None,
+        split: Literal["math_test", "math_500_test"] = "math_test",
+    ):
         df = pandas.read_csv(
-            "https://openaipublic.blob.core.windows.net/simple-evals/math_test.csv"
+            f"https://openaipublic.blob.core.windows.net/simple-evals/{split}.csv"
         )
         examples = [row.to_dict() for _, row in df.iterrows()]
         if num_examples:

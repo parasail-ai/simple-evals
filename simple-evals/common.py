@@ -276,3 +276,24 @@ def make_report_from_example_htmls(htmls: list[str]):
     return jinja_env.from_string(_report_template).render(
         score=None, metrics={}, htmls=htmls
     )
+
+def normalize_response(response: str) -> str:
+    """
+    Normalize the response by removing markdown and LaTeX formatting that may prevent a match.
+    """
+
+    return (
+        response.replace("**", "")
+        .replace("$\\boxed{", "")
+        .replace("}$", "")
+        .replace("\\$", "")
+        .replace("$\\text{", "")
+        .replace("$", "")
+        .replace("\\mathrm{", "")
+        .replace("\\{", "")
+        .replace("\\text", "")
+        .replace("\\(", "")
+        .replace("\\mathbf{", "")
+        .replace("{", "")
+        .replace("\\boxed", "")
+    )

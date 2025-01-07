@@ -11,7 +11,12 @@ from typing import Optional
 import pandas
 
 from . import common
-from .common import ANSWER_PATTERN_MULTICHOICE, HTML_JINJA, format_multichoice_question
+from .common import (
+    ANSWER_PATTERN_MULTICHOICE,
+    HTML_JINJA,
+    format_multichoice_question,
+    normalize_response,
+)
 from .types import Eval, EvalResult, SamplerBase, SingleEvalResult
 
 subject2category = {
@@ -92,7 +97,7 @@ class MMLUEval(Eval):
                     content=format_multichoice_question(row), role="user"
                 )
             ]
-            response_text = sampler(prompt_messages)
+            response_text = normalize_response(sampler(prompt_messages))
             match = re.search(ANSWER_PATTERN_MULTICHOICE, response_text)
             extracted_answer = match.group(1) if match else None
             score = 1.0 if extracted_answer == row["Answer"] else 0.0
